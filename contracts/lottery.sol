@@ -18,14 +18,15 @@ contract Lottery {
 
   event LotteryCompleted(address winner, uint winnings);
 
+  modifier onlyAdmin { require(msg.sender == admin); _; }
+
   function Lottery() {
     //admin for distribution services and lottery creation/deletion
     admin = msg.sender;
   }
 
-  function newLottery(uint _ticketsAvailable, uint _lotteryTime, uint _ticketPrice) {
+  function newLottery(uint _ticketsAvailable, uint _lotteryTime, uint _ticketPrice) onlyAdmin {
 
-    require(msg.sender == admin); // only the admin can create a new Lottery
     require(now >= (lotteryStart + lotteryTime)); // the previous lottery must have ended
 
     // if there was a previous lottery reset the tickets that were available
@@ -40,8 +41,7 @@ contract Lottery {
     LotteryCreated(lotteryStart, lotteryTime);
   }
 
-  function deleteLottery() {
-    require(msg.sender == admin); // only the admin can delete a Lottery
+  function deleteLottery() onlyAdmin {
 
     for (uint ticket = 0; ticket < ticketsAvailable; ticket++) {
       owner[ticket] = address(0);
@@ -65,8 +65,7 @@ contract Lottery {
     owner[ticket] = purchaser;
   }
 
-  function completeLottery(uint winningHash) payable {
-    require(msg.sender == admin);
+  function completeLottery(uint winningHash) payable onlyAdmin {
 
     var winner = owner[winningHash % ticketsAvailable];
 
