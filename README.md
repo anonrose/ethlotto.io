@@ -1,1 +1,0 @@
-ethlotto.net
