@@ -7,6 +7,7 @@ contract Lottery {
   uint public lotteryStart;
   uint public lotteryTime;
   uint public ticketPrice;
+  uint public ticketsAvailable;
 
   // mapping of ticket index to owner address
   mapping(uint => address) public owner;
@@ -15,15 +16,14 @@ contract Lottery {
   event LotteryCreated(uint lotteryStart, uint lotteryTime);
   event LotteryDeleted();
 
-  event LotteryCompleted();
+  event LotteryCompleted(address winner, uint winnings);
 
-  Lottery(address _lotteryPool) {
+  function Lottery() {
     //admin for distribution services and lottery creation/deletion
     admin = msg.sender;
-    lotteryPool = _lotteryPool;
   }
 
-  newLottery(uint _ticketsAvailable, uint _lotteryTime, uint _ticketPrice) {
+  function newLottery(uint _ticketsAvailable, uint _lotteryTime, uint _ticketPrice) {
 
     require(msg.sender == admin); // only the admin can create a new Lottery
     require(now >= (lotteryStart + lotteryTime)); // the previous lottery must have ended
@@ -40,10 +40,10 @@ contract Lottery {
     LotteryCreated(lotteryStart, lotteryTime);
   }
 
-  deleteLottery() {
+  function deleteLottery() {
     require(msg.sender == admin); // only the admin can delete a Lottery
 
-    for (uint ticket = 0; ticket < ticketsAvailable; i++) {
+    for (uint ticket = 0; ticket < ticketsAvailable; ticket++) {
       owner[ticket] = address(0);
     }
 
@@ -51,12 +51,11 @@ contract Lottery {
     lotteryStart     = 0;
     lotteryTime      = 0;
     ticketPrice      = 0;
-    lotteryPool      = address(0);
 
     LotteryDeleted();
   }
 
-  purchaseTicket(ticket) payable {
+  function purchaseTicket(uint ticket) payable {
     var purchaser = msg.sender;
 
     require(now <= (lotteryStart + lotteryTime)); // lottery isn't over
@@ -66,7 +65,7 @@ contract Lottery {
     owner[ticket] = purchaser;
   }
 
-  completeLottery(uint winningHash) payable {
+  function completeLottery(uint winningHash) payable {
     require(msg.sender == admin);
 
     var winner = owner[winningHash % ticketsAvailable];
@@ -77,7 +76,7 @@ contract Lottery {
 
     LotteryCompleted(winner, this.balance);
 
-    winner.send(this.balance);
+    winner.transfer(this.balance);
     deleteLottery();
   }
 }
