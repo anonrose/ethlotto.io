@@ -25,17 +25,17 @@ contract Lottery {
     admin = msg.sender;
   }
 
-  function newLottery(uint _ticketsAvailable, uint _lotteryTime, uint _ticketPrice) onlyAdmin {
+  function newLottery(uint _ticketsAvailable, uint _lotteryTime, uint128 _ticketPrice) onlyAdmin {
 
     require(now >= (lotteryStart + lotteryTime)); // the previous lottery must have ended
 
-    // if there was a previous lottery reset the tickets that were available
-    deleteLottery();
+    for (uint ticket = 0; ticket < ticketsAvailable; ticket++) {
+      require(owner[ticket] == address(0));
+    }
 
     ticketsAvailable = _ticketsAvailable;
     lotteryTime      = _lotteryTime;
     ticketPrice      = _ticketPrice;
-
     lotteryStart     = now;
 
     LotteryCreated(lotteryStart, lotteryTime);
