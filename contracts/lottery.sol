@@ -12,10 +12,7 @@ contract Lottery {
   // mapping of ticket index to owner address
   mapping(uint => address) public owner;
 
-
   event LotteryCreated(uint lotteryStart, uint lotteryTime);
-  event LotteryDeleted();
-
   event LotteryCompleted(address winner, uint winnings);
 
   modifier onlyAdmin { require(msg.sender == admin); _; }
@@ -27,10 +24,8 @@ contract Lottery {
 
   function newLottery(uint _ticketsAvailable, uint _lotteryTime, uint128 _ticketPrice) onlyAdmin {
 
-    require(now >= (lotteryStart + lotteryTime)); // the previous lottery must have ended
-
     for (uint ticket = 0; ticket < ticketsAvailable; ticket++) {
-      require(owner[ticket] == address(0));
+      owner[ticket] = address(0);
     }
 
     ticketsAvailable = _ticketsAvailable;
@@ -39,20 +34,6 @@ contract Lottery {
     lotteryStart     = now;
 
     LotteryCreated(lotteryStart, lotteryTime);
-  }
-
-  function deleteLottery() onlyAdmin {
-
-    for (uint ticket = 0; ticket < ticketsAvailable; ticket++) {
-      owner[ticket] = address(0);
-    }
-
-    ticketsAvailable = 0;
-    lotteryStart     = 0;
-    lotteryTime      = 0;
-    ticketPrice      = 0;
-
-    LotteryDeleted();
   }
 
   function purchaseTicket(uint ticket) payable {
@@ -76,6 +57,9 @@ contract Lottery {
     LotteryCompleted(winner, this.balance);
 
     winner.transfer(this.balance);
-    deleteLottery();
+  }
+
+  function getTicketOwner(uint ticket) returns(address) { 
+    return owner[ticket];
   }
 }
