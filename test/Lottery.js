@@ -1,5 +1,7 @@
 require('babel-polyfill');
 
+const EXPECT_FAILURE = require('./ExpectFailure');
+
 var Lottery = artifacts.require('Lottery');
 
 const ticketsAvailable = 300;
@@ -7,7 +9,7 @@ const lotteryTime      = 500;
 const ticketPrice      = 500; // everything is represented in wei - https://goo.gl/V4hsdY
 const address0         = '0x0000000000000000000000000000000000000000';
 
-contract('Lottery', function([admin, ...addresses]) {
+contract('Lottery', function([admin, user1, user2, ...addresses]) {
 
   it('should deploy', async function() {
     let lotto = await Lottery.deployed();
@@ -23,15 +25,6 @@ contract('Lottery', function([admin, ...addresses]) {
 
   it('new lottery creates correct lottery', async function() {
     let lotto = await Lottery.deployed();
-
-    let lottoCreatedEvent = lotto.LotteryCreated();
-
-    lottoCreatedEvent.watch((error, results)=>{
-      if (results.args.length) {
-        let _lotteryTime = results.args[0].lotteryTime;
-        assert.equal(lotteryTime, _lotteryTime, 'LotteryCreated event is fired with correct arguments');
-      }
-    });
 
     await lotto.newLottery(ticketsAvailable, lotteryTime, ticketPrice);
 
@@ -51,5 +44,14 @@ contract('Lottery', function([admin, ...addresses]) {
     let ownerOf1 = await lotto.getTicketOwner.call(ticket);
 
     assert.equal(ownerOf1, address0, 'the ticket 1 has no owner');
+  });
+
+  it('purchases tickets correctly', async function() {
+    let lotto = await Lottery.deployed();
+    let ticket = 1;
+
+    await lotto.purchaseTicket.call(ticket, {from: user1, value: 500});
+
+
   });
 });
