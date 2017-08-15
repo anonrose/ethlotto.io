@@ -50,8 +50,9 @@ contract('Lottery', function([admin, user1, user2, ...addresses]) {
     let lotto = await Lottery.deployed();
     let ticket = 1;
 
-    await lotto.purchaseTicket.call(ticket, {from: user1, value: 500});
+    await lotto.purchaseTicket(ticket, {from: user1, value: 500});
+    let ownerOf1 = await lotto.getTicketOwner.call(ticket);
 
-
+    assert.equal(user1, ownerOf1, 'user1 is now the owner of ticket 1');
   });
 });

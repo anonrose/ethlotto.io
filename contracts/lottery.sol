@@ -59,8 +59,8 @@ contract Lottery {
     winner.transfer(this.balance);
   }
 
-  /*function getTicketOwner(uint ticket) returns(address) {
+  function getTicketOwner(uint ticket) returns(address) {
     return owner[ticket];
-  }*/
+  }
 
 }
