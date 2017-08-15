@@ -50,8 +50,8 @@ contract Lottery {
 
     var winner = owner[winningHash % ticketsAvailable];
 
-    if (winner != address(0)) {
-      /*TODO : decide what to do here, many options*/
+    if (winner == address(0)) { /* TODO: I don't know what to do here so this is just temp */
+      admin.transfer(this.balance);
     }
 
     LotteryCompleted(winner, this.balance);
@@ -62,5 +62,4 @@ contract Lottery {
   function getTicketOwner(uint ticket) returns(address) {
     return owner[ticket];
   }
-
 }

@@ -15,4 +15,4 @@ const EXPECT_THROW = async (promise) => {
 
 module.exports = {
   EXPECT_THROW
-}
+};
