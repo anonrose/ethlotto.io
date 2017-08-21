@@ -12,8 +12,8 @@ contract Lottery {
   // mapping of ticket index to owner address
   mapping(uint => address) public owner;
 
-  event LotteryCreated(uint lotteryStart, uint lotteryTime);
-  event LotteryCompleted(address winner, uint winnings);
+  event LotteryCreated(uint _lotteryStart, uint _lotteryTime);
+  event LotteryCompleted(address winner, uint _winnings);
 
   modifier onlyAdmin { require(msg.sender == admin); _; }
 
