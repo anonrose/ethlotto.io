@@ -152,12 +152,26 @@ class EtherLottery {
   }
 }
 
+
+class EtherUI {
+  static async fetchContractBalanceInWei(contractAddress) {
+    return await new Promise((resolve) => {
+      web3.eth.getBalance(contractAddress, function(error, { c: [ balance ]} ){
+        resolve(balance);
+      });
+    })
+  }
+  static toEthFromWei(wei) {
+    return web3.fromWei(wei);
+  }
+}
+
 $(_ => {
   if(typeof web3 !== 'undefined' && typeof Web3 !== 'undefined') {
       web3 = new Web3(web3.currentProvider);
 
       web3.eth.getCode(CONTRACT_ADDRESS, (e, r) => {
-        if (!e && r.length > 3)
+        if (!e && r.length > 3) {
           var contract = web3.eth.contract(CONTRACT_ABI).at(CONTRACT_ADDRESS);
 
           let ethLotto =  new EtherLottery(contract);
@@ -167,6 +181,9 @@ $(_ => {
           ethLotto.loadAttributes(contractAttributes).then(({admin, lotteryStart, lotteryTime, ticketPrice, tickets, ticketsAvailable}) => {
             new TicketSelection(0, ticketsAvailable, 30, tickets, ticketPrice);
           });
+
+          EtherUI.fetchContractBalanceInWei(CONTRACT_ADDRESS).then(balance => $('.shimmer').text(EtherUI.toEthFromWei(balance)));
+        }
       });
   } else {
       console.error('There was an error connecting to the ethereum network.');
