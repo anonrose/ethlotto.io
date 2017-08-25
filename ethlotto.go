@@ -1,10 +1,11 @@
-package main
+package serve
 
 import (
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
+	"log"
 )
 
 const coinMarketCapAPI = "https://coinmarketcap-nexuist.rhcloud.com/api/eth"
@@ -25,15 +26,20 @@ var eth Eth
 
 func serveFiles(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
+	log.Println(path)
 	if path == "/" {
-		http.ServeFile(w, r, "../frontend/index.html")
+		http.ServeFile(w, r, "./frontend/index.html")
 	} else {
-		http.ServeFile(w, r, "../frontend/"+path)
+		http.ServeFile(w, r, "./frontend/"+path)
 	}
 }
 
 func fetchBalnce() {
-	resp, _ := http.Get(coinMarketCapAPI)
+	resp, err := http.Get(coinMarketCapAPI)
+
+	if err != nil {
+		return
+	}
 
 	defer resp.Body.Close()
 
@@ -52,6 +58,7 @@ func ETHBalanceThread() {
 		}
 	}()
 	fetchBalnce()
+
 }
 
 func servePrice(w http.ResponseWriter, r *http.Request) {
@@ -63,13 +70,10 @@ func servePrice(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(marshaledEth))
 }
 
-func main() {
-
+func init() {
 	ETHBalanceThread()
 
 	http.HandleFunc("/", serveFiles)
 
 	http.HandleFunc("/api/price.json", servePrice)
-
-	http.ListenAndServe(":8080", nil)
 }
