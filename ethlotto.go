@@ -2,10 +2,10 @@ package serve
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"time"
 	"log"
+	"google.golang.org/appengine"
+  "google.golang.org/appengine/urlfetch"
 )
 
 const coinMarketCapAPI = "https://coinmarketcap-nexuist.rhcloud.com/api/eth"
@@ -34,46 +34,26 @@ func serveFiles(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func fetchBalnce() {
-	resp, err := http.Get(coinMarketCapAPI)
+func ETHBalance(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+  client := urlfetch.Client(ctx)
+  resp, err := client.Get(coinMarketCapAPI)
 
-	if err != nil {
-		return
-	}
+  if err != nil {
+      http.Error(w, err.Error(), http.StatusInternalServerError)
+      return
+  }
 
-	defer resp.Body.Close()
-
+  defer resp.Body.Close()
 	json.NewDecoder(resp.Body).Decode(&eth)
-}
 
-func ETHBalanceThread() {
-
-	go func() {
-		t := time.NewTicker(60 * time.Second)
-		for {
-			select {
-			case <-t.C:
-				fetchBalnce()
-			}
-		}
-	}()
-	fetchBalnce()
-
-}
-
-func servePrice(w http.ResponseWriter, r *http.Request) {
-	marshaledEth, err := json.Marshal(eth)
-	if err != nil {
-		fmt.Println("error:", err)
-	}
+	marshaledEth, err := json.Marshal(eth);
 
 	w.Write([]byte(marshaledEth))
 }
 
 func init() {
-	ETHBalanceThread()
-
 	http.HandleFunc("/", serveFiles)
 
-	http.HandleFunc("/api/price.json", servePrice)
+	http.HandleFunc("/api/price.json", ETHBalance)
 }

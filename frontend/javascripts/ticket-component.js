@@ -173,6 +173,6 @@ $(_ => {
         }
       });
   } else {
-      console.error('There was an error connecting to the ethereum network.');
+      promptForMetaMask();
   }
 });
