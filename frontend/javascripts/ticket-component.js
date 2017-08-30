@@ -46,7 +46,7 @@ class TicketSelection {
   }
 
   buildTicketMarkup(ticket, owner) {
-    return `<div class='chip-container index-${ticket} initial-rotation' data-owner='${owner}'>
+    return `<div class='chip-container index-${ticket} initial-rotation' data-ticket='${ticket}' data-owner='${owner}'>
               <div class="chip front ${owner == ADDRESS_0 ? 'green' : 'grey'} lighten-1">
               <i class="fa fa-ticket" aria-hidden="true"></i>
                ${ticket}
@@ -154,25 +154,31 @@ class EtherLottery {
 
 
 $(_ => {
+
   if(typeof web3 !== 'undefined' && typeof Web3 !== 'undefined') {
       web3 = new Web3(web3.currentProvider);
-
-      web3.eth.getCode(CONTRACT_ADDRESS, (e, r) => {
-        if (!e && r.length > 3) {
-          var contract = web3.eth.contract(CONTRACT_ABI).at(CONTRACT_ADDRESS);
-
-          let ethLotto =  new EtherLottery(contract);
-
-          let contractAttributes = ['admin', 'lotteryStart', 'lotteryTime', 'ticketPrice', 'ticketsAvailable'];
-
-          ethLotto.loadAttributes(contractAttributes).then(({admin, lotteryStart, lotteryTime, ticketPrice, tickets, ticketsAvailable}) => {
-            new TicketSelection(0, ticketsAvailable, 30, tickets, ticketPrice);
-          });
-
-
-        }
-      });
   } else {
+      web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io/unUocZxzv4r4nTIdNwBP "));
       promptForMetaMask();
   }
+
+  web3.eth.getCode(CONTRACT_ADDRESS, (e, r) => {
+    if (!e && r.length > 3) {
+      contract = web3.eth.contract(CONTRACT_ABI).at(CONTRACT_ADDRESS);
+
+      let ethLotto =  new EtherLottery(contract);
+
+      let contractAttributes = ['admin', 'lotteryStart', 'lotteryTime', 'ticketPrice', 'ticketsAvailable'];
+
+      ethLotto.loadAttributes(contractAttributes).then(({admin, lotteryStart, lotteryTime, ticketPrice, tickets, ticketsAvailable}) => {
+        new TicketSelection(0, ticketsAvailable, 30, tickets, ticketPrice);
+
+        $('.chip-container').click((e)=>{
+          $ct = $(e.currentTarget);
+          contract.purchaseTicket(Number($ct.data('ticket')), {from: web3.eth.accounts[0], value: 5000, gas: 400000}, function(){console.log(...arguments)});
+        });
+
+      });
+    }
+  });
 });
