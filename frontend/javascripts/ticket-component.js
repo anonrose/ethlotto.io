@@ -1,7 +1,11 @@
 CONTRACT_ADDRESS = '0x042c0bd56b3c377363ab1603672e7f07445f184d';
 CONTRACT_ABI = [{"constant":true,"inputs":[],"name":"ticketPrice","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"ticketsAvailable","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"_ticketsAvailable","type":"uint256"},{"name":"_lotteryTime","type":"uint256"},{"name":"_ticketPrice","type":"uint128"}],"name":"newLottery","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"winningHash","type":"uint256"}],"name":"completeLottery","outputs":[],"payable":true,"type":"function"},{"constant":true,"inputs":[],"name":"lotteryTime","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"ticket","type":"uint256"}],"name":"getTicketOwner","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"ticket","type":"uint256"}],"name":"purchaseTicket","outputs":[],"payable":true,"type":"function"},{"constant":true,"inputs":[],"name":"lotteryStart","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"admin","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"inputs":[],"payable":false,"type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"name":"lotteryStart","type":"uint256"},{"indexed":false,"name":"lotteryTime","type":"uint256"}],"name":"LotteryCreated","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"winner","type":"address"},{"indexed":false,"name":"winnings","type":"uint256"}],"name":"LotteryCompleted","type":"event"}];
 ADDRESS_0 = '0x0000000000000000000000000000000000000000';
+const INFURA_HOST = "https://mainnet.infura.io/unUocZxzv4r4nTIdNwBP";
 
+function notification(primaryText, secondaryText, secondaryTextLink, time) {
+  Materialize.toast(`<span class="round">${primaryText}</span><a href="${secondaryTextLink}" target="_blank" class="btn-flat toast-action">${secondaryText}</a>`, time || 3000, 'rounded meta-notification');
+}
 
 
 class TicketSelection {
@@ -42,7 +46,23 @@ class TicketSelection {
       $('.chips-column').append($(ticketMarkup));
     }
 
-    this.showTickets(ticketToOwner);
+    this.showTickets(ticketToOwner).then(()=>{
+
+      $('.chip-container').click((e)=>{
+        if (web3.currentProvider.host != INFURA_HOST) {
+          var $ct = $(e.currentTarget);
+          let ticket = Number($ct.data('ticket'));
+
+          contract.purchaseTicket(ticket, {from: web3.eth.accounts[0], value: this.ticketPrice, gas: 60000}, (e, txhash)=>{
+            notification(`Purchasing Ticket ${ticket}`, "View Transaction", `https://etherscan.io/tx/${txhash}`, 5000);
+          });
+          
+        } else {
+          notification("Install Meta Mask to Purchase a Ticket", "Meta Mask", "https://metamask.io/");
+        }
+      });
+
+    });
   }
 
   buildTicketMarkup(ticket, owner) {
@@ -102,7 +122,7 @@ class EtherLottery {
 
   async loadAttributes(attributesToLoad) {
     let contractAttributes = {};
-    let tickets = await this.loadTickets();
+    let tickets = await Contract.loadTickets();
 
     Object.assign(contractAttributes, { tickets });
 
@@ -129,37 +149,15 @@ class EtherLottery {
       });
     });
   }
-
-  async loadTickets() {
-    let contract = this.contract;
-    return await new Promise((resolve) => {
-      contract.ticketsAvailable(async (error, { c: [ticketCount] }) => {
-        let addressRequests = [];
-        for (var ticket = 0; ticket <= ticketCount; ticket++) {
-          addressRequests.push(this.loadTicketOwner(contract, ticket));
-        }
-        resolve(await Promise.all(addressRequests));
-      });
-    });
-  }
-
-  loadTicketOwner(contract, ticket) {
-    return new Promise((resolve) => {
-      contract.owner(ticket, (error, address) => {
-        resolve(address, ticket);
-      });
-    });
-  }
 }
-
 
 $(_ => {
 
   if(typeof web3 !== 'undefined' && typeof Web3 !== 'undefined') {
       web3 = new Web3(web3.currentProvider);
   } else {
-      web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io/unUocZxzv4r4nTIdNwBP "));
-      promptForMetaMask();
+      web3 = new Web3(new Web3.providers.HttpProvider(INFURA_HOST));
+      notification("Install Meta Mask to Purchase a Ticket", "Meta Mask", "https://metamask.io/");
   }
 
   web3.eth.getCode(CONTRACT_ADDRESS, (e, r) => {
@@ -171,13 +169,7 @@ $(_ => {
       let contractAttributes = ['admin', 'lotteryStart', 'lotteryTime', 'ticketPrice', 'ticketsAvailable'];
 
       ethLotto.loadAttributes(contractAttributes).then(({admin, lotteryStart, lotteryTime, ticketPrice, tickets, ticketsAvailable}) => {
-        new TicketSelection(0, ticketsAvailable, 30, tickets, ticketPrice);
-
-        $('.chip-container').click((e)=>{
-          $ct = $(e.currentTarget);
-          contract.purchaseTicket(Number($ct.data('ticket')), {from: web3.eth.accounts[0], value: 5000, gas: 400000}, function(){console.log(...arguments)});
-        });
-
+        ticketSelection = new TicketSelection(0, ticketsAvailable, 22, tickets, ticketPrice);
       });
     }
   });

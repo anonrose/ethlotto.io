@@ -9,6 +9,9 @@
 h1 {
   font-size: 3.5rem !important;
 }
+.meta-notification {
+  background-color: #ee6e73 !important;
+}
 body {
   background-color: #EDEEF2;
 }
