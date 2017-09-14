@@ -15,7 +15,7 @@ class Contract {
     return await new Promise((resolve) => {
       contract.ticketsAvailable(async (error, { c: [ticketCount] }) => {
         let addressRequests = [];
-        for (var ticket = 0; ticket <= ticketCount; ticket++) {
+        for (var ticket = 0; ticket < ticketCount; ticket++) {
           addressRequests.push(this.loadTicketOwner(ticket));
         }
         resolve(await Promise.all(addressRequests));

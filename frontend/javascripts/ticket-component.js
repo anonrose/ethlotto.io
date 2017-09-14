@@ -56,7 +56,7 @@ class TicketSelection {
           contract.purchaseTicket(ticket, {from: web3.eth.accounts[0], value: this.ticketPrice, gas: 60000}, (e, txhash)=>{
             notification(`Purchasing Ticket ${ticket}`, "View Transaction", `https://etherscan.io/tx/${txhash}`, 5000);
           });
-          
+
         } else {
           notification("Install Meta Mask to Purchase a Ticket", "Meta Mask", "https://metamask.io/");
         }
@@ -169,7 +169,8 @@ $(_ => {
       let contractAttributes = ['admin', 'lotteryStart', 'lotteryTime', 'ticketPrice', 'ticketsAvailable'];
 
       ethLotto.loadAttributes(contractAttributes).then(({admin, lotteryStart, lotteryTime, ticketPrice, tickets, ticketsAvailable}) => {
-        ticketSelection = new TicketSelection(0, ticketsAvailable, 22, tickets, ticketPrice);
+        console.log(lotteryStart, lotteryTime, 'time');
+        ticketSelection = new TicketSelection(0, ticketsAvailable-1, 22, tickets, ticketPrice);
       });
     }
   });
