@@ -22,8 +22,6 @@ type Eth struct {
 	Timestamp  string
 }
 
-var eth Eth
-
 func serveFiles(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 	log.Println(path)
@@ -35,6 +33,8 @@ func serveFiles(w http.ResponseWriter, r *http.Request) {
 }
 
 func ETHBalance(w http.ResponseWriter, r *http.Request) {
+
+	var eth Eth
 	ctx := appengine.NewContext(r)
   client := urlfetch.Client(ctx)
   resp, err := client.Get(coinMarketCapAPI)
