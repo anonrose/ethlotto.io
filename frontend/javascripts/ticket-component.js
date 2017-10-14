@@ -3,8 +3,8 @@ CONTRACT_ABI = [{"constant":true,"inputs":[],"name":"ticketPrice","outputs":[{"n
 ADDRESS_0 = '0x0000000000000000000000000000000000000000';
 const INFURA_HOST = "https://mainnet.infura.io/unUocZxzv4r4nTIdNwBP";
 
-function notification(primaryText, secondaryText, secondaryTextLink, time) {
-  Materialize.toast(`<span class="round">${primaryText}</span><a href="${secondaryTextLink}" target="_blank" class="btn-flat toast-action">${secondaryText}</a>`, time || 3000, 'rounded meta-notification');
+function notification(primaryText, secondaryText='#', secondaryTextLink='', time=3000, target='_blank') {
+  Materialize.toast(`<span class="round">${primaryText}</span><a href="${secondaryTextLink}" target=${target} class="btn-flat toast-action">${secondaryText}</a>`, time, 'rounded meta-notification');
 }
 
 
@@ -13,55 +13,70 @@ class TicketSelection {
 
     Object.assign(this, {min, max, ticketsPerPage, tickets, ticketPrice});
 
-    this.addTicketsToDOM(Math.floor(max/2));
+    this.addTicketsToDOMAndShowTickets(Math.floor(max/2));
     this.createSlider(min, max);
-    this.addClickEvents();
+    this.addTicketSearchingClickEvents();
   }
 
-  addTicketsToDOM(startPosition='random') {
+  addTicketsToDOMAndShowTickets(startPosition='random') {
+    let ticketsToOwner = this.getTicketsToOwner(startPosition);
+    this.appendTicketsToDOM(tickets);
 
-    var ticketToOwner = {};
+    this.showTickets(ticketsToOwner).then(() => {
+      this.addTicketClickEvent();
+    });
+  }
 
-    if (startPosition == 'random') { // assign
+  getTicketsToOwner(startPosition) {
+    return startPosition == 'random' ? this.getRandomTickets() : this.getOrderedTickets(startPosition);
+  }
 
-      for (var i = 0; i < this.ticketsPerPage; i++) {
-        let randomNumberInRange = Math.floor(Math.random() * (this.max - this.min)) + this.min;
-        ticketToOwner[randomNumberInRange] =  this.tickets[randomNumberInRange];
-      }
+  getRandomTickets() {
+    var ticketsToOwner = {};
 
-    } else {
-
-      for (var i = startPosition, total = 0; i <= this.max && total <  this.ticketsPerPage;) {
-        ticketToOwner[i] = this.tickets[i];
-        i++; total++;
-      }
-
+    for (var i = 0; i < this.ticketsPerPage; i++) {
+      let randomNumberInRange = Math.floor(Math.random() * (this.max - this.min)) + this.min;
+      ticketsToOwner[randomNumberInRange] =  this.tickets[randomNumberInRange];
     }
 
+    return ticketsToOwner;
+  }
 
+  getOrderedTickets(startPosition) {
+    var ticketsToOwner = {};
+
+    for (var i = startPosition, total = 0; i <= this.max && total <  this.ticketsPerPage;) {
+      ticketsToOwner[i] = this.tickets[i];
+      i++; total++;
+    }
+
+    return ticketsToOwner;
+  }
+
+  appendTicketsToDOM(ticketsToOwner) {
     $('.chips-column').html('');
 
-    for (var ticket in ticketToOwner) {
-      let ticketMarkup = this.buildTicketMarkup(ticket, ticketToOwner[ticket]);
+    for (var ticket in ticketsToOwner) {
+      let ticketMarkup = this.buildTicketMarkup(ticket, ticketsToOwner[ticket]);
       $('.chips-column').append($(ticketMarkup));
     }
 
-    this.showTickets(ticketToOwner).then(()=>{
+  }
 
-      $('.chip-container').click((e)=>{
-        if (web3.currentProvider.host != INFURA_HOST) {
-          var $ct = $(e.currentTarget);
-          let ticket = Number($ct.data('ticket'));
+  addTicketClickEvent() {
+    $('.chip-container').click((e)=>{
+      if (web3.currentProvider.host != INFURA_HOST) {
+        var $ct = $(e.currentTarget), ticket = Number($ct.data('ticket'));
+        this.purchaseTicket(ticket);
+      } else {
+        notification("Install Meta Mask to Purchase a Ticket", "Meta Mask", "https://metamask.io/");
+      }
+    });
+  }
 
-          contract.purchaseTicket(ticket, {from: web3.eth.accounts[0], value: this.ticketPrice, gas: 60000}, (e, txhash)=>{
-            notification(`Purchasing Ticket ${ticket}`, "View Transaction", `https://etherscan.io/tx/${txhash}`, 5000);
-          });
-
-        } else {
-          notification("Install Meta Mask to Purchase a Ticket", "Meta Mask", "https://metamask.io/");
-        }
-      });
-
+  purchaseTicket(ticket) {
+    contract.purchaseTicket(ticket, {from: web3.eth.accounts[0], value: this.ticketPrice, gas: 60000}, (e, txhash)=>{
+      notification(`Purchasing Ticket ${ticket}`, "View Transaction", `https://etherscan.io/tx/${txhash}`, 5000);
     });
   }
 
@@ -75,6 +90,12 @@ class TicketSelection {
   }
 
   async showTickets(tickets) {
+    await this.initialRotation(tickets);
+
+    await this.addTicketStatus(tickets);
+  }
+
+  async initialRotation(tickets) {
     for (var ticket in tickets) {
       await new Promise((resolve) => {
         setTimeout(()=>{
@@ -83,23 +104,26 @@ class TicketSelection {
         }, 30);
       });
     }
+  }
 
-    await new Promise((resolve) => {
-        setTimeout(()=>{
-          for (var ticket in tickets) {
-            ticket = $(`.chip-container.index-${ticket}`);
-            let owner = ticket.data('owner');
-            ticket.addClass(`${owner == ADDRESS_0 ? 'for-sale' : 'sold'}`);
-          }
-          resolve();
-        }, 600);
+  addTicketStatus(tickets) {
+    return new Promise((resolve) => {
+      setTimeout(()=>{
+        for (var ticket in tickets) {
+          ticket = $(`.chip-container.index-${ticket}`);
+          let owner = ticket.data('owner');
+          ticket.addClass(`${owner == ADDRESS_0 ? 'for-sale' : 'sold'}`);
+        }
+        resolve();
+      }, 600);
     });
   }
 
-  addClickEvents() {
-    $('.arrow.random').click( _ => this.addTicketsToDOM() );
+  addTicketSearchingClickEvents() {
+    $('.arrow.random').click( _ => this.addTicketsToDOMAndShowTickets() );
+
     this.slider.noUiSlider.on('change', (values, handle) => {
-  	  this.addTicketsToDOM(parseInt(values[handle]));
+  	  this.addTicketsToDOMAndShowTickets(parseInt(values[handle]));
     });
   }
 
