@@ -3,17 +3,19 @@ package main
 import (
 	"fmt"
 	"log"
-  "context"
+  // "context"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
-  "github.com/ethereum/go-ethereum/accounts/abi/bind"
+  // "github.com/ethereum/go-ethereum/accounts/abi/bind"
   "ethlotto/lottery"
 )
 
+const INFURA_HOST = "https://mainnet.infura.io/unUocZxzv4r4nTIdNwBP"
+
 func main() {
 	// Create an IPC based RPC connection to a remote node
-	conn, err := ethclient.Dial("https://mainnet.infura.io/unUocZxzv4r4nTIdNwBP")
+	conn, err := ethclient.Dial(INFURA_HOST)
 
 	if err != nil {
 		log.Fatalf("Failed to connect to the Ethereum client: %v", err)
@@ -26,7 +28,7 @@ func main() {
 		log.Fatalf("", err)
 	}
 
-  ticketsAvailable, err := lottery.TicketsAvailable(nil)
+  ticketsAvailable, err := lottery.TicketPrice(nil)
 
   if err != nil {
 		log.Fatalf("", err)

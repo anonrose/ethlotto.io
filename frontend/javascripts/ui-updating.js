@@ -10,9 +10,12 @@ class UIUpdater {
   }
 
   static async updatePrice(selector) {
-    let balanceInEth = await Contract.fetchContractBalanceInWei(CONTRACT_ADDRESS);
-    let currentEthAttrs = await (await fetch('/api/price.json')).json();
-    $(selector).text(`$${Math.ceil(Contract.toEthFromWei(parseFloat(balanceInEth) * currentEthAttrs.Price.usd))/100}`);
+    let balanceInEth = parseFloat(await Contract.fetchContractBalanceInWei(CONTRACT_ADDRESS));
+    let ethUSD = await (await fetch('/api/price.json')).json();
+
+    var { data: { amount: priceInUSD } } = ethUSD;
+
+    $(selector).text(`$${Math.ceil(Contract.toEthFromWei(balanceInEth) * parseFloat(priceInUSD))}`);
   }
 
   static updateTicketStatusEveryInterval(interval) {

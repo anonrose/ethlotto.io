@@ -20,7 +20,7 @@ class TicketSelection {
 
   addTicketsToDOMAndShowTickets(startPosition='random') {
     let ticketsToOwner = this.getTicketsToOwner(startPosition);
-    this.appendTicketsToDOM(tickets);
+    this.appendTicketsToDOM(ticketsToOwner);
 
     this.showTickets(ticketsToOwner).then(() => {
       this.addTicketClickEvent();
@@ -193,7 +193,6 @@ $(_ => {
       let contractAttributes = ['admin', 'lotteryStart', 'lotteryTime', 'ticketPrice', 'ticketsAvailable'];
 
       ethLotto.loadAttributes(contractAttributes).then(({admin, lotteryStart, lotteryTime, ticketPrice, tickets, ticketsAvailable}) => {
-        console.log(lotteryStart, lotteryTime, 'time');
         ticketSelection = new TicketSelection(0, ticketsAvailable-1, 22, tickets, ticketPrice);
       });
     }
