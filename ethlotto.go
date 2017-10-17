@@ -1,25 +1,20 @@
 package serve
 
 import (
-	"encoding/json"
 	"net/http"
 	"log"
 	"google.golang.org/appengine"
   "google.golang.org/appengine/urlfetch"
+	"io/ioutil"
 )
 
-const coinMarketCapAPI = "https://coinmarketcap-nexuist.rhcloud.com/api/eth"
+const COINBASE_API = "https://api.coinbase.com/v2/prices/ETH-USD/buy"
 
+func init() {
 
-type Eth struct {
-	Symbol     string
-	Position   string
-	Name       string
-	MarketCap  map[string]float32 `json:"market_cap"`
-	Price      map[string]float32
-	Supply     string
-	Change     string
-	Timestamp  string
+	http.HandleFunc("/", serveFiles)
+
+	http.HandleFunc("/api/price.json", ETHBalanceProxy)
 }
 
 func serveFiles(w http.ResponseWriter, r *http.Request) {
@@ -32,28 +27,19 @@ func serveFiles(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func ETHBalance(w http.ResponseWriter, r *http.Request) {
+func ETHBalanceProxy(w http.ResponseWriter, r *http.Request) {
 
-	var eth Eth
+	req, _ := http.NewRequest("GET", COINBASE_API, nil)
+
+	req.Header.Add("CB-VERSION", "2016-03-03")
+
 	ctx := appengine.NewContext(r)
-  client := urlfetch.Client(ctx)
-  resp, err := client.Get(coinMarketCapAPI)
 
-  if err != nil {
-      http.Error(w, err.Error(), http.StatusInternalServerError)
-      return
-  }
+	client := urlfetch.Client(ctx)
 
-  defer resp.Body.Close()
-	json.NewDecoder(resp.Body).Decode(&eth)
+	resp, _ := client.Do(req)
 
-	marshaledEth, err := json.Marshal(eth);
+	body, _ := ioutil.ReadAll(resp.Body)
 
-	w.Write([]byte(marshaledEth))
-}
-
-func init() {
-	http.HandleFunc("/", serveFiles)
-
-	http.HandleFunc("/api/price.json", ETHBalance)
+	w.Write(body)
 }
