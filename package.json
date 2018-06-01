@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "gulp-cli": "^1.4.0"
+    "webpack": "^4.10.2",
+    "webpack-cli": "^2.1.4"
   }
 }
