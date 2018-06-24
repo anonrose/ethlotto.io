@@ -1,17 +1,17 @@
 <template>
   <v-container grid-list-md text-xs-center>
     <v-layout row wrap>
-      <v-flex v-for="info in appInfo" xs6>
-        <v-card dark color="secondary">
-          <v-card-media :src="info.logo" height="200px"></v-card-media>
+      <v-flex v-for="info in appInfo" :key="info.i" xs6 >
+        <v-card dark class="info-container" color="secondary">
+          <v-card-media src="info.logo"></v-card-media>
           <v-card-title primary-title>
             <div>
               <h3 class="headline mb-0">{{info.title}}</h3>
-              <div v-html="info.content"></div>
+              <div class="info-content" v-html="info.content"></div>
             </div>
           </v-card-title>
           <v-card-actions>
-            <v-btn flat :href="info.link.href" target="_blank" color="orange">{{info.link.text}}</v-btn>
+            <v-btn flat :href="info.link.href" target="_blank" color="blue">{{info.link.text}}</v-btn>
           </v-card-actions>
         </v-card>
       </v-flex>
@@ -26,26 +26,32 @@ export default {
   data () {
     return {
       appInfo: [
+        { i: 0,
+          title: 'How to purchase a ticket',
+          logo: '../assets/ethereum-logo.png',
+          content: '<ul style="padding:15px; list-style:none;"><li>Create an Ethereum Wallet using Meta Mask</li><li>Purchase ETH</li><li>Visit our site</li><li>Purchase a Ticket</li></ul>',
+          link: { text: 'INSTRUCTIONAL VIDEO', href: 'https://youtu.be/AKH1TPrlOWU' }
+        },
         {
-          title: "How to purchase a ticket",
-          logo: "../assets/ethereum-logo.png",
-          content:"<ul><li>Create an Ethereum Wallet using Meta Mask</li><li>nPurchase ETH</li><li>Visit our site</li><li>Purchase a Ticket</li></ul>",
-          link: { text:"INSTRUCTIONAL VIDEO" , href:"https://youtu.be/AKH1TPrlOWU" }
-        },{
-          title: "How to purchase a ticket",
-          logo: "../assets/ethereum-logo.png",
-          content:"<ul><li>Create an Ethereum Wallet using Meta Mask</li><li>nPurchase ETH</li><li>Visit our site</li><li>Purchase a Ticket</li></ul>",
-          link: { text:"INSTRUCTIONAL VIDEO" , href:"https://youtu.be/AKH1TPrlOWU" }
-        },{
-          title: "How to purchase a ticket",
-          logo: "../assets/ethereum-logo.png",
-          content:"<ul><li>Create an Ethereum Wallet using Meta Mask</li><li>nPurchase ETH</li><li>Visit our site</li><li>Purchase a Ticket</li></ul>",
-          link: { text:"INSTRUCTIONAL VIDEO" , href:"https://youtu.be/AKH1TPrlOWU" }
-        },{
-          title: "How to purchase a ticket",
-          logo: "../assets/ethereum-logo.png",
-          content:"<ul><li>Create an Ethereum Wallet using Meta Mask</li><li>nPurchase ETH</li><li>Visit our site</li><li>Purchase a Ticket</li></ul>",
-          link: { text:"INSTRUCTIONAL VIDEO" , href:"https://youtu.be/AKH1TPrlOWU" }
+          i: 1,
+          title: 'Public',
+          logo: '../assets/ethereum-logo.png',
+          content: '<ul style="padding:15px; list-style:none;"><li>Open Source</li><li>Each transaction is publicly available</li><li>Winners are verifiable via the Ethereum Blockchain</li></ul>',
+          link: { text: 'HOW SECURE IS 256BIT ENCRYPTION?', href: 'https://www.youtube.com/watch?v=S9JGmA5_unY' }
+        },
+        {
+          i: 2,
+          title: 'Ether',
+          logo: '../assets/ethereum-logo.png',
+          content: '<p style="padding:15px; list-style:none;">Listed under the code ETH it is the value token of the Ethereum blockchain.</p>',
+          link: { text: 'READ THE WHITE PAPER', href: 'https://github.com/ethereum/wiki/wiki/White-Paper' }
+        },
+        {
+          i: 3,
+          title: 'How to purchase a ticket',
+          logo: '../assets/ethereum-logo.png',
+          content: '<ul style="padding:15px; list-style:none;"><li>Secured Purchases</li><li>Anonymous - Decentralized and Distributed</li><li>Contract-oriented, high-level languages - Solidity</li></ul>',
+          link: { text: 'LEARN SOLIDITY', href: 'https://github.com/ethereum/solidity/' }
         }
       ]
     }
@@ -53,3 +59,13 @@ export default {
 }
 
 </script>
+
+<style lang="scss" scoped>
+
+.info-container {
+  height: 250px !important;
+  .info-content {
+    text-align: left;
+  }
+}
+</style>
