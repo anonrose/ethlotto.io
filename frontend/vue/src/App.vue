@@ -8,13 +8,14 @@
 
 <script>
 
+
 import Header from './components/header'
-// import Footer from './components/footer'
 import Body from './components/body'
+import Footer from './components/footer'
 
 export default {
   name: 'App',
-  components: { Header, Body }
+  components: { Header, Body, Footer }
 }
 </script>
 
