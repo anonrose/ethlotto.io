@@ -1,7 +1,7 @@
 <template>
   <v-container grid-list-md text-xs-center>
     <v-layout row wrap>
-      <v-flex v-for="info in appInfo" :key="info.i" xs6 >
+      <v-flex v-for="info in appInfo" :key="info.i" v-bind:class="[materialSize]" >
         <v-card dark class="info-container" color="secondary">
           <v-card-media src="info.logo"></v-card-media>
           <v-card-title primary-title>
@@ -25,6 +25,8 @@ export default {
   name: 'application-info',
   data () {
     return {
+      materialSize: "xs6",
+      windowWidth: 0,
       appInfo: [
         { i: 0,
           title: 'How to purchase a ticket',
@@ -55,15 +57,23 @@ export default {
         }
       ]
     }
+  },
+  mounted() {
+    this.$nextTick(() => {
+      let sizeContainers = () => {
+        this.materialSize = window.innerWidth < 610 ? 'm8' : 'xs6';
+      }
+      window.addEventListener('resize', sizeContainers);
+      sizeContainers();
+    });
   }
 }
 
 </script>
 
 <style lang="scss" scoped>
-
 .info-container {
-  height: 250px !important;
+  height: 250px important;
   .info-content {
     text-align: left;
   }
