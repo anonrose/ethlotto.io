@@ -1,6 +1,6 @@
 <template>
-  <div class="ticket-container" v-bind:class="{ sold: address == address0, 'for-sale': address !== address0  }">
-    <div class="ticket-front lighten-1" v-bind:class="{ grey: address == address0, green: address !== address0  }">{{index}}</div>
+  <div @click="purchaseTicket()" class="ticket-container" v-bind:class="[address == address0 ? 'for-sale': 'sold']">
+    <div class="ticket-front lighten-1" v-bind:class="[address == address0 ? 'green' : 'grey']">{{index}}</div>
   </div>
 </template>
 <script>
@@ -13,6 +13,14 @@ export default {
     return {
       address0: ADDRESS_0
     };
+  },
+  methods: {
+    purchaseTicket() {
+      debugger;
+      if (this.address0 !== this.address)
+        throw new Error("can not purchase a ticket that is already sold.");
+      else console.log("purchsing ticket");
+    }
   }
 };
 </script>
