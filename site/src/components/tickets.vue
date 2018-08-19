@@ -1,7 +1,7 @@
 <template>
   <div>
     <li v-for="(item, index) in tickets"  :key="item" >
-      {{ item }} - {{index}}
+      {{ item }} - {{index + 1}} 
    </li>
   </div>
 </template>
@@ -10,9 +10,3 @@ export default {
   props: ["tickets"]
 };
 </script>
-
-<style lang="scss" scoped>
-.slider {
-  margin-top: -150px;
-}
-</style>
