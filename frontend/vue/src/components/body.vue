@@ -1,15 +1,15 @@
 <template>
   <div>
-    <slider/>
+    <lottery/>
     <application-info/>
   </div>
 </template>
 
 <script>
-import ApplicationInfo from './application-info'
-import Slider from './slider.vue'
+import ApplicationInfo from "./application-info";
+import Lottery from "./lottery.vue";
 export default {
-  name: 'Body',
-  components: { ApplicationInfo, Slider }
-}
+  name: "Body",
+  components: { ApplicationInfo, Lottery }
+};
 </script>
