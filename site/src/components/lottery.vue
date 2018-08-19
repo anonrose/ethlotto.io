@@ -1,8 +1,7 @@
 <template>
   <div class="slider">
     <vue-slider v-bind="slider" v-model="slider.value"></vue-slider>
-    <button @click="purchaseTicket(slider.value)"><h3>Purchase Ticket</h3></button>
-    <tickets :tickets="tickets"></tickets>
+    <tickets :tickets="tickets" :visibleTicketRange="visibleTicketRange"></tickets>
   </div>
 </template>
 <script>
@@ -49,9 +48,25 @@ export default {
   created() {
     this.fetchTickets();
   },
+  watch: {
+    "slider.value": function(middleTicketIndex) {
+      this.showTicket(middleTicketIndex);
+    },
+    tickets: function(tickets) {
+      this.showTicket(tickets.length / 2);
+    }
+  },
   methods: {
-    purchaseTicket(ticket) {
-      console.log("purchase ticket", ticket);
+    showTicket(middleTicketIndex) {
+      let beginningTicketIndex =
+        middleTicketIndex - 10 < 0 ? 0 : middleTicketIndex - 10;
+
+      let lastTicketIndex =
+        middleTicketIndex + 10 > this.tickets.length
+          ? this.tickets.length
+          : middleTicketIndex + 10;
+
+      this.visibleTicketRange = [beginningTicketIndex, lastTicketIndex];
     },
     fetchTickets() {
       new Contract().tickets.then(ticks => (this.tickets = ticks));
