@@ -10,13 +10,13 @@
 
 <script>
 export default {
-  name: 'Header',
-  data () {
+  name: "Header",
+  data() {
     return {
-      title: 'ethlotto.io'
-    }
+      title: "ethlotto.io"
+    };
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>
@@ -40,7 +40,7 @@ export default {
       line-height: 200px;
       top: 70%;
       left: 50%;
-      transform: translate(-50%,-65%);
+      transform: translate(-50%, -65%);
       padding-top: 250px;
       -webkit-background-clip: text;
       color: transparent;
@@ -59,7 +59,7 @@ export default {
         }
       }
       h1 {
-        color: #C77177;
+        color: #c77177;
         font-weight: 400;
         line-height: 110%;
       }
