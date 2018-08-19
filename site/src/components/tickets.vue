@@ -32,6 +32,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .ticket-column {
+  margin: 50px auto auto auto;
   height: 147px;
   flex-flow: row wrap;
   justify-content: center;

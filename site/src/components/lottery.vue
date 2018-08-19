@@ -1,7 +1,6 @@
 <template>
   <div class="slider">
     <vue-slider v-bind="slider" v-model="slider.value"></vue-slider>
-    <button @click="purchaseTicket(slider.value)"><h3>Purchase Ticket</h3></button>
     <tickets :tickets="tickets" :visibleTicketRange="visibleTicketRange"></tickets>
   </div>
 </template>
@@ -60,17 +59,14 @@ export default {
   methods: {
     showTicket(middleTicketIndex) {
       let beginningTicketIndex =
-        middleTicketIndex - 20 < 0 ? 0 : middleTicketIndex - 20;
+        middleTicketIndex - 10 < 0 ? 0 : middleTicketIndex - 10;
 
       let lastTicketIndex =
-        middleTicketIndex + 20 > this.tickets.length - 1
-          ? this.tickets.length - 1
-          : middleTicketIndex + 20;
+        middleTicketIndex + 10 > this.tickets.length
+          ? this.tickets.length
+          : middleTicketIndex + 10;
 
       this.visibleTicketRange = [beginningTicketIndex, lastTicketIndex];
-    },
-    purchaseTicket(ticket) {
-      console.log("purchase ticket", ticket);
     },
     fetchTickets() {
       new Contract().tickets.then(ticks => (this.tickets = ticks));

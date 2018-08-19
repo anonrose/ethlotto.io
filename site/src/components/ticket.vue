@@ -1,19 +1,25 @@
 <template>
-  <div class="ticket-container">
-    {{index}}
+  <div class="ticket-container" v-bind:class="{ sold: address == address0, 'for-sale': address !== address0  }">
+    <div class="ticket-front lighten-1" v-bind:class="{ grey: address == address0, green: address !== address0  }">{{index}}</div>
   </div>
 </template>
 <script>
 import ticket from "./ticket";
+import { ADDRESS_0 } from "../../static/constants";
 
 export default {
   props: ["address", "index"],
-  computed: {}
+  data() {
+    return {
+      address0: ADDRESS_0
+    };
+  }
 };
 </script>
 
 <style lang="scss" scoped>
 .ticket-container {
+  perspective: 30rem;
   border-radius: 16px;
   background-position: center center;
   cursor: pointer;
@@ -22,6 +28,36 @@ export default {
   margin-left: 5px;
   width: 90px;
   height: 32px;
+  background-repeat: no-repeat;
+  .ticket-front:hover {
+    transform: rotateY(180deg);
+  }
+  &.sold {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='35px' width='95px'><text x='32' y='25' fill='white' font-size='17'>Sold</text></svg>");
+    background-color: #c6bfc7;
+  }
+  &.for-sale {
+    background-color: #95c1ad;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.…5px'><text x='15' y='22' fill='white' font-size='17'>Purchase</text></svg>");
+  }
+  .ticket-front {
+    display: inline-block;
+    height: 32px;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.6);
+    line-height: 32px;
+    padding: 0 12px;
+    border-radius: 16px;
+    width: 90px;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-bottom: 0 !important;
+    margin-right: 0 !important;
+    transition: transform 1s;
+    backface-visibility: hidden;
+  }
 }
 </style>
 
