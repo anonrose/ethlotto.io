@@ -4,8 +4,8 @@
   </div>
 </template>
 <script>
-import ticket from "./ticket";
 import { ADDRESS_0 } from "../../static/constants";
+import Contract from "../../static/contract";
 
 export default {
   props: ["address", "index"],
@@ -16,10 +16,13 @@ export default {
   },
   methods: {
     purchaseTicket() {
-      debugger;
-      if (this.address0 !== this.address)
-        throw new Error("can not purchase a ticket that is already sold.");
-      else console.log("purchsing ticket");
+      Contract.purchaseTicket(this.index)
+        .then(transaction => {
+          console.log(transaction);
+        })
+        .catch(resp => {
+          console.log(resp.message);
+        });
     }
   }
 };
