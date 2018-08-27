@@ -1,65 +1,49 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.24;
 
 contract Lottery {
 
-  address public admin;
+    uint public lotteryStart;
+    uint public ticketPrice;
+    uint public ticketsAvailable;
 
-  uint public lotteryStart;
-  uint public lotteryTime;
-  uint public ticketPrice;
-  uint public ticketsAvailable;
+    mapping(uint => address) public owner;
 
-  // mapping of ticket index to owner address
-  mapping(uint => address) public owner;
+    modifier lotteryComplete {require(block.timestamp >= (lotteryStart + 7 days), "lottery has not completed"); _;}
 
-  event LotteryCreated(uint _lotteryStart, uint _lotteryTime);
-  event LotteryCompleted(address winner, uint _winnings);
-
-  modifier onlyAdmin { require(msg.sender == admin); _; }
-
-  function Lottery() {
-    //admin for distribution services and lottery creation/deletion
-    admin = msg.sender;
-  }
-
-  function newLottery(uint _ticketsAvailable, uint _lotteryTime, uint128 _ticketPrice) onlyAdmin {
-
-    for (uint ticket = 0; ticket < ticketsAvailable; ticket++) {
-      owner[ticket] = address(0);
+    constructor() public {
+        lotteryStart = 0;
     }
 
-    ticketsAvailable = _ticketsAvailable;
-    lotteryTime      = _lotteryTime;
-    ticketPrice      = _ticketPrice;
-    lotteryStart     = now;
+    function newLottery() public {
+        if (lotteryStart != 0) {
+            require(block.timestamp >= (lotteryStart + 7 days), "lottery has not completed");
+        }
 
-    LotteryCreated(lotteryStart, lotteryTime);
-  }
+        for (uint ticket = 0; ticket < ticketsAvailable; ticket++) {
+            owner[ticket] = address(0);
+        }
 
-  function purchaseTicket(uint ticket) payable {
-    var purchaser = msg.sender;
-
-    require(now <= (lotteryStart + lotteryTime)); // lottery isn't over
-    require(owner[ticket] == address(0));         // the ticket hasn't been purchased
-    require(msg.value == ticketPrice);            // value sent is the ticket price
-
-    owner[ticket] = purchaser;
-  }
-
-  function completeLottery(uint winningHash) payable onlyAdmin {
-
-    var winner = owner[winningHash % ticketsAvailable];
-
-    if (winner == address(0)) { /* TODO: I don't know what to do here so this is just temp */
-      admin.transfer(this.balance);
+        ticketsAvailable = 100;
+        ticketPrice = 10 finney;
+        lotteryStart = block.timestamp;
     }
 
-    LotteryCompleted(winner, this.balance);
+    function purchaseTicket(uint ticket) public payable {
+        require(owner[ticket] == address(0), "the ticket has been purchased");                    // the ticket hasn't been purchased
+        require(msg.value == ticketPrice, "sent an invalid ticket price");                      // value sent is the ticket price
 
-    winner.transfer(this.balance);
-  }
+        owner[ticket] = msg.sender;
+    }
 
-  function getTicketOwner(uint ticket) returns(address) {
-    return owner[ticket];
-  }
+    function completeLottery() public lotteryComplete {
+        address winner = owner[block.number % ticketsAvailable];
+
+        if (winner != address(0)) {
+            address(this).transfer(address(this).balance);
+        }
+    }
+
+    function getTicketOwner(uint ticket) public view returns(address) {
+        return owner[ticket];
+    }
 }
