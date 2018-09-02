@@ -1,7 +1,7 @@
 import Web3 from 'web3'
 import { INFURA_HOST } from './constants'
 
-export default class ETHNetwork {
+export default class Network {
   constructor() {
     var web3
     if (typeof web3 !== 'undefined') {
