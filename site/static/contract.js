@@ -6,17 +6,17 @@ export default class Contract {
       contractABI, contractAddress
     })
     this._network = new Network()
-    this._contract = this._network.eth.Contract(contractABI, contractAddress)
+    this._contract = new this._network.eth.Contract(contractABI, contractAddress)
     this._api = this._contract.methods
   }
 
   get(method, ...args) {
-    return this._api[method].call(...args)
+    return this._api[method](...args).call()
   }
 
   post(method, ...args) {
     let transaction = args.pop() || {}
-    this._api[method](...args).send(transaction)
+    return this._api[method](...args).send(transaction)
   }
 
   balance() {

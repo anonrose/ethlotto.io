@@ -1,11 +1,11 @@
 <template>
-  <div @click="purchaseTicket()" class="ticket-container" v-bind:class="[address == address0 ? 'for-sale': 'sold']">
+  <div v-on:click='$emit("purchase-ticket", index)' class="ticket-container" v-bind:class="[address == address0 ? 'for-sale': 'sold']">
     <div class="ticket-front lighten-1" v-bind:class="[address == address0 ? 'green' : 'grey']">{{index}}</div>
   </div>
 </template>
+
 <script>
 import { ADDRESS_0 } from "../../static/constants";
-import Contract from "../../static/contract";
 
 export default {
   props: ["address", "index"],
@@ -13,17 +13,6 @@ export default {
     return {
       address0: ADDRESS_0
     };
-  },
-  methods: {
-    purchaseTicket() {
-      Contract.purchaseTicket(this.index)
-        .then(resp => {
-          this.$emit("ticket-purchase-initiated", resp.message);
-        })
-        .catch(resp => {
-          this.$emit("ticket-purchase-failed", resp.message);
-        });
-    }
   }
 };
 </script>

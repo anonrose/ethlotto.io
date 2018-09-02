@@ -1,25 +1,14 @@
 <template>
   <div class="ticket-column">
-    <ticket-notifications :notification='notification'/>
-    <ticket v-for="(address, index) in ticketsShown" :key="index" :address="address" :index="index + firstTicket" 
-            v-on:ticket-purchase-failed='showNotification'
-            v-on:ticket-purchase-initiated='showNotification'
-            ></ticket>
+    <ticket v-for="(address, index) in ticketsShown" :key="index" :address="address" :index="index + firstTicket" v-on:purchase-ticket="$emit('purchase-ticket', index + firstTicket)"/>
   </div>
 </template>
 <script>
 import ticket from "./ticket";
-import ticketNotifications from "./ticket-notifications";
 
 export default {
   components: {
-    ticket,
-    ticketNotifications
-  },
-  data() {
-    return {
-      notification: ""
-    };
+    ticket
   },
   props: ["tickets", "visibleTicketRange"],
   computed: {
@@ -36,14 +25,6 @@ export default {
     firstTicket() {
       let [beginning] = this.visibleTicketRange || [];
       return beginning || 0;
-    }
-  },
-  methods: {
-    showNotification(msg) {
-      this.notification = msg;
-      setTimeout(() => {
-        this.notification = "";
-      }, 4000);
     }
   }
 };

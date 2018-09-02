@@ -14,12 +14,8 @@ export default class Lottery extends Contract {
     }
   }
 
-  get prizePool() {
-    return this.balance
-  }
-
   async syncWithDeployedContract() {
-    const [tickets, balance, lotteryStart] = await Promise.all([this.getTickets(), this.getBalance(), this.getLotteryStart()])
+    const [tickets, balance, lotteryStart] = await Promise.all([this.getTickets(), this.getBalance(), this.getStart()])
     Object.assign(this, { tickets, balance, lotteryStart })
   }
 
@@ -51,13 +47,13 @@ export default class Lottery extends Contract {
     return balance
   }
 
-  async getlotteryStart() {
-    const start = await this.get('lotteryStart');
+  async getStart() {
+    const start = await this.get('lotteryStart')
     return start
   }
 
   async findOwnerOfTicket(idx) {
-    this._tickets[idx] = this._tickets[idx] || await this.get('getTicketOwner', idx)
-    return this._tickets[idx]
+    const owner = await this.get('getTicketOwner', idx)
+    return owner
   }
 }

@@ -1,6 +1,5 @@
 <template>
   <div>
-    <contract-info/>
     <lottery/>
     <application-info/>
   </div>
@@ -9,10 +8,10 @@
 <script>
 import ApplicationInfo from "./application-info";
 import Lottery from "./lottery";
-import ContractInfo from "./contract-info";
+
 export default {
   name: "Body",
-  components: { ApplicationInfo, Lottery, ContractInfo }
+  components: { ApplicationInfo, Lottery }
 };
 </script>
 <style lang="scss" scoped>

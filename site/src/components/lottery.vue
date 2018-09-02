@@ -1,18 +1,22 @@
 <template>
-  <div class="slider">
+  <div>
+    <lottery-info :lotteryEnd="lotteryEnd" :balance="balance"/>
     <vue-slider v-bind="slider" v-model="slider.value"></vue-slider>
-    <tickets :tickets="tickets" :visibleTicketRange="visibleTicketRange"></tickets>
+    <tickets :tickets="tickets" :visibleTicketRange="visibleTicketRange" v-on:purchase-ticket="purchaseTicket"></tickets>
   </div>
 </template>
+
 <script>
 import vueSlider from "vue-slider-component";
-import Contract from "../../static/contract";
+import Lottery from "../../static/lottery";
 import tickets from "./tickets";
+import lotteryInfo from "./lottery-info";
 
 export default {
   components: {
     vueSlider,
-    tickets
+    tickets,
+    lotteryInfo
   },
   data() {
     return {
@@ -46,13 +50,18 @@ export default {
     };
   },
   created() {
-    this.fetchTickets();
+    this.lottery = new Lottery();
+    this.lottery.syncWithDeployedContract().then(() => {
+      this.tickets = this.lottery.tickets;
+      this.lotteryEnd = this.lottery.lotteryEnd;
+      this.balance = this.lottery.balance;
+    });
   },
   watch: {
     "slider.value": function(middleTicketIndex) {
       this.showTicket(middleTicketIndex);
     },
-    tickets: function(tickets) {
+    tickets(tickets) {
       this.showTicket(tickets.length / 2);
     }
   },
@@ -68,8 +77,8 @@ export default {
 
       this.visibleTicketRange = [beginningTicketIndex, lastTicketIndex];
     },
-    fetchTickets() {
-      Contract.getTickets().then(ts => (this.tickets = ts));
+    purchaseTicket(ticket) {
+      this.lottery.purchaseTicket(ticket);
     }
   }
 };
