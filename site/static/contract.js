@@ -1,9 +1,9 @@
 import ETHNetwork from './eth-network'
-import { CONTRACT_ABI, CONTRACT_ADDRESS, ADDRESS_0 } from './constants'
+import { CONTRACT_ABI, CONTRACT_ADDRESS, ADDRESS_0, TICKET_PRICE_IN_WEI } from './constants'
 
 const NETWORK = new ETHNetwork()
 const LOTTO_CONTRACT = new NETWORK.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS)
-const CONTRACT_API = this._contractAPI = LOTTO_CONTRACT.methods
+const CONTRACT_API = LOTTO_CONTRACT.methods
 
 const TICKETS = []
 
@@ -16,25 +16,17 @@ export default class Contract {
     return new Promise(async (resolve, reject) => {
       const ticketAdress = TICKETS[ticketIdx]
       const from = (await NETWORK.eth.getAccounts())[0]
+      const err = new Error()
 
-      var errMsg
-      if (ticketAdress !== ADDRESS_0) errMsg = `you can't purchase a ticket that is already sold.`
-      if (!from) errMsg = `you need to sign in to meta mask in order to purchase a ticket.`
+      if (ticketAdress !== ADDRESS_0) err.message = `You can't purchase a ticket that is already sold.`
+      if (!from) err.message = `You need to sign in to meta mask in order to purchase a ticket.`
 
-      if (errMsg) {
-        reject(new Error(`Sorry, ${errMsg}`))
-      } else {
-        CONTRACT_API.purchaseTicket(ticketIdx).send({ from, gas: 200000 })
-          .on('transactionHash', transactionHash => {
-            console.log(transactionHash)
-          })
-          .on('confirmation', (confirmationNumber, recipt) => {
-            console.log(confirmationNumber, recipt)
-            resolve()
-          }).on('receipt', (recipt) => {
-            console.log('recipt', recipt)
-          })
-      }
+      if (err.message.length) reject(err)
+
+      CONTRACT_API.purchaseTicket(ticketIdx).send({ from, gas: 200000, value: TICKET_PRICE_IN_WEI })
+        .on('confirmation', (_, recipt) => {
+          resolve({ message: `Purchasing Ticket: ${ticketIdx}\n\tTransaction: ${recipt.transactionHash}` })
+        })
     })
   }
 
@@ -46,9 +38,8 @@ export default class Contract {
 
           let ownerRequests = [...new Array(parseInt(ticketCount))].map((_, i) => _ticketOwner(i))
 
-          let owners = await Promise.all(ownerRequests)
-
-          owners.forEach(owner => TICKETS.push(owner))
+          let tickets = await Promise.all(ownerRequests)
+          TICKETS.push(...tickets)
         }
       } catch (error) {
         reject(error)
@@ -56,5 +47,17 @@ export default class Contract {
         resolve(TICKETS)
       }
     })
+  }
+
+  static lotteryEnd() {
+    return new Promise(async resolve => {
+      let startTime = new Date(1000 * (await CONTRACT_API.lotteryStart().call()))
+      let endingTime = new Date(startTime.setDate(startTime.getDate() + 7)) // 7 days from starting time;
+      resolve(endingTime)
+    })
+  }
+
+  static balance() {
+    return NETWORK.eth.getBalance(CONTRACT_ADDRESS)
   }
 }

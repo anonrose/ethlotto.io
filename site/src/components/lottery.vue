@@ -69,14 +69,8 @@ export default {
       this.visibleTicketRange = [beginningTicketIndex, lastTicketIndex];
     },
     fetchTickets() {
-      Contract.getTickets().then(ticks => (this.tickets = ticks));
+      Contract.getTickets().then(ts => (this.tickets = ts));
     }
   }
 };
 </script>
-
-<style lang="scss" scoped>
-.slider {
-  margin-top: -150px;
-}
-</style>

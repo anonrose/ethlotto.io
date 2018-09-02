@@ -17,11 +17,11 @@ export default {
   methods: {
     purchaseTicket() {
       Contract.purchaseTicket(this.index)
-        .then(transaction => {
-          console.log(transaction);
+        .then(resp => {
+          this.$emit("ticket-purchase-initiated", resp.message);
         })
         .catch(resp => {
-          console.log(resp.message);
+          this.$emit("ticket-purchase-failed", resp.message);
         });
     }
   }
