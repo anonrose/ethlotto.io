@@ -1,31 +1,49 @@
 <template>
   <div class="ticket-column">
-    <ticket v-for="(item, index) in ticketsShown" :key="index" :address="item" :index="index + firstTicket" ></ticket>
+    <ticket-notifications :notification='notification'/>
+    <ticket v-for="(address, index) in ticketsShown" :key="index" :address="address" :index="index + firstTicket" 
+            v-on:ticket-purchase-failed='showNotification'
+            v-on:ticket-purchase-initiated='showNotification'
+            ></ticket>
   </div>
 </template>
 <script>
 import ticket from "./ticket";
+import ticketNotifications from "./ticket-notifications";
 
 export default {
   components: {
-    ticket
+    ticket,
+    ticketNotifications
+  },
+  data() {
+    return {
+      notification: ""
+    };
   },
   props: ["tickets", "visibleTicketRange"],
   computed: {
-    ticketsShown: function() {
-      let [beginningTicketIndex, endingTicketIndex] =
-        this.visibleTicketRange || [];
+    ticketsShown() {
+      let [beginning, ending] = this.visibleTicketRange || [];
 
       var ticketsShown = [];
 
-      for (let i = beginningTicketIndex; i != endingTicketIndex; i++) {
-        ticketsShown.push(this.tickets[i]);
+      for (let ticket of this.tickets.slice(beginning, ending)) {
+        ticketsShown.push(ticket);
       }
       return ticketsShown;
     },
-    firstTicket: function() {
-      let [beginningTicketIndex] = this.visibleTicketRange || [];
-      return beginningTicketIndex || 0;
+    firstTicket() {
+      let [beginning] = this.visibleTicketRange || [];
+      return beginning || 0;
+    }
+  },
+  methods: {
+    showNotification(msg) {
+      this.notification = msg;
+      setTimeout(() => {
+        this.notification = "";
+      }, 4000);
     }
   }
 };
