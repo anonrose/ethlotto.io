@@ -62,8 +62,8 @@ export default class Lottery extends Contract {
   }
 
   async getBalance() {
-    this.balance = await this.balance()
-    return this.balance
+    const balance = await this.balance()
+    return balance
   }
 
   async getStart() {
@@ -74,5 +74,11 @@ export default class Lottery extends Contract {
   async findOwnerOfTicket(idx) {
     const owner = await this.get('getTicketOwner', idx)
     return owner
+  }
+
+  async complete() {
+    const from = (await this.accounts())[0]
+    await this.post('completeLottery', { from, gas: 200000 })
+    await this.post('newLottery', { from, gas: 200000 })
   }
 }

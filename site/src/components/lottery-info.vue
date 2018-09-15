@@ -1,37 +1,51 @@
 <template>
   <div id="lottery-end">
-    <div id="winning-amount">{{balance}}</div>
-    <div id="time-remaining">{{timeRemaining}}</div>
+    <div id="winning-amount">Amount to win: {{balanceInUSD}}$</div>
+    <div id="time-remaining">{{timeRemaining}}
+      <div v-if="lotteryComplete">
+        <a href="#" @click="startNewLottery()"></a>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import Lottery from "../../static/lottery";
+import jetch from "jetch";
 
 export default {
   created() {
-    this.lottery = new Lottery();
     this.updateCountdown();
     this.updateBalance();
   },
   data() {
+    let lottery = new Lottery();
     return {
       timeRemaining: "",
-      balance: ""
+      lottery,
+      balanceInWei: "",
+      balanceInUSD: null,
+      lotteryComplete: false
     };
   },
   methods: {
+    startNewLottery() {
+      this.lottery.complete();
+    },
     updateBalance() {
-      setInterval(() => {
-        this.balance = this.lottery.balance || "";
-      }, 50000);
+      let cb = () => {
+        this.lottery.getBalance().then(bal => (this.balanceInWei = bal));
+      };
+      cb();
+      setInterval(cb, 5000);
     },
     updateCountdown() {
       this.lottery.getStart().then(() => {
-        let intvl = setInterval(() => {
+        let cb = () => {
           if (this.lottery.isLotteryComplete) {
             clearInterval(intvl);
             this.timeRemaining = "lottery complete";
+            this.lotteryComplete = true;
           } else {
             let {
               days: d,
@@ -41,8 +55,17 @@ export default {
             } = this.lottery.timeRemaining;
             this.timeRemaining = `${d} days ${h} hours ${m} ${s} remaining`;
           }
-        }, 1000);
+        };
+        cb();
+        let intvl = setInterval(cb, 1000);
       });
+    }
+  },
+  watch: {
+    balanceInWei: async function(newBal) {
+      let { data: { amount: ethPrice } } = await jetch("/api/price.json");
+      let ethAmount = web3.fromWei(newBal, "ether");
+      this.balanceInUSD = parseFloat(ethPrice) * parseFloat(ethAmount);
     }
   }
 };
