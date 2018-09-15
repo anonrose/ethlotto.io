@@ -11,6 +11,8 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "eth-contract-wrapper": "^1.0.0",
+    "jetch": "^1.0.3",
     "vue": "^2.5.2",
     "vue-slider-component": "^2.7.2",
     "vuetify": "^1.0.19",

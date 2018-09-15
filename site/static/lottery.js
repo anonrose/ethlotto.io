@@ -1,4 +1,4 @@
-import Contract from './contract'
+import Contract from 'eth-contract-wrapper'
 import { CONTRACT_ABI, CONTRACT_ADDRESS, ADDRESS_0, TICKET_PRICE_IN_WEI } from './constants'
 
 export default class Lottery extends Contract {
@@ -14,9 +14,28 @@ export default class Lottery extends Contract {
     }
   }
 
+  get timeRemaining() {
+    if (this.lotteryEnd) {
+      var distance = new Date(this.lotteryEnd).getTime() - new Date().getTime()
+
+      var days = Math.floor(distance / (1000 * 60 * 60 * 24))
+      var hours = Math.floor(
+        (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+      )
+      var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
+      var seconds = Math.floor((distance % (1000 * 60)) / 1000)
+
+      return { days, hours, minutes, seconds }
+    }
+  }
+
+  get isLotteryComplete() {
+    let { days, hours, minutes, seconds } = this.timeRemaining
+    return days < 0 || hours < 0 || minutes < 0 || seconds < 0
+  }
+
   async syncWithDeployedContract() {
-    const [tickets, balance, lotteryStart] = await Promise.all([this.getTickets(), this.getBalance(), this.getStart()])
-    Object.assign(this, { tickets, balance, lotteryStart })
+    await Promise.all([this.getTickets(), this.getBalance(), this.getStart()])
   }
 
   async purchaseTicket(idx) {
@@ -37,19 +56,19 @@ export default class Lottery extends Contract {
 
     let ownerRequests = [...new Array(parseInt(ticketCount))].map((_, i) => this.findOwnerOfTicket(i))
 
-    let tickets = await Promise.all(ownerRequests)
+    this.tickets = await Promise.all(ownerRequests)
 
-    return tickets
+    return this.tickets
   }
 
   async getBalance() {
-    const balance = await this.balance()
-    return balance
+    this.balance = await this.balance()
+    return this.balance
   }
 
   async getStart() {
-    const start = await this.get('lotteryStart')
-    return start
+    this.lotteryStart = await this.get('lotteryStart')
+    return this.lotteryStart
   }
 
   async findOwnerOfTicket(idx) {

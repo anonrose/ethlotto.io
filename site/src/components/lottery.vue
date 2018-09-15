@@ -1,6 +1,6 @@
 <template>
   <div>
-    <lottery-info :lotteryEnd="lotteryEnd" :balance="balance"/>
+    <lottery-info/>
     <vue-slider v-bind="slider" v-model="slider.value"></vue-slider>
     <tickets :tickets="tickets" :visibleTicketRange="visibleTicketRange" v-on:purchase-ticket="purchaseTicket"></tickets>
   </div>
@@ -51,11 +51,9 @@ export default {
   },
   created() {
     this.lottery = new Lottery();
-    this.lottery.syncWithDeployedContract().then(() => {
-      this.tickets = this.lottery.tickets;
-      this.lotteryEnd = this.lottery.lotteryEnd;
-      this.balance = this.lottery.balance;
-    });
+    this.lottery
+      .syncWithDeployedContract()
+      .then(() => (this.tickets = this.lottery.tickets));
   },
   watch: {
     "slider.value": function(middleTicketIndex) {

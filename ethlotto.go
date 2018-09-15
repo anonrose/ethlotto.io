@@ -1,11 +1,12 @@
 package serve
 
 import (
-	"net/http"
-	"log"
-	"google.golang.org/appengine"
-  "google.golang.org/appengine/urlfetch"
 	"io/ioutil"
+	"log"
+	"net/http"
+
+	"google.golang.org/appengine"
+	"google.golang.org/appengine/urlfetch"
 )
 
 const COINBASE_API = "https://api.coinbase.com/v2/prices/ETH-USD/buy"
@@ -21,9 +22,9 @@ func serveFiles(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 	log.Println(path)
 	if path == "/" {
-		http.ServeFile(w, r, "./frontend/index.html")
+		http.ServeFile(w, r, "./dist/index.html")
 	} else {
-		http.ServeFile(w, r, "./frontend/"+path)
+		http.ServeFile(w, r, "./dist/"+path)
 	}
 }
 
