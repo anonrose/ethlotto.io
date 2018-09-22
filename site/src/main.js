@@ -4,6 +4,7 @@ import Vue from 'vue'
 import App from './App'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
+import 'vue-awesome/icons'
 
 Vue.config.productionTip = false
 

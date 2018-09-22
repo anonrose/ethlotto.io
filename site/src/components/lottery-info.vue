@@ -1,10 +1,18 @@
 <template>
   <div id="lottery-end">
-    <div id="winning-amount">Amount to win: {{balanceInUSD}}$</div>
-    <div id="time-remaining">{{timeRemaining}}
-      <div v-if="lotteryComplete">
-        <a href="#" @click="startNewLottery()"></a>
-      </div>
+    <div id="winning-amount">
+      Amount to <span v-if="lotteryComplete">distribute</span><span v-else>win</span>: {{balanceInUSD}}$
+    </div>
+    <div class="text-xs-center d-flex align-center" v-if="lotteryComplete">
+      <v-tooltip absolute >
+        <v-btn slot="activator" depressed small color="green" id="start-new-contract" @click="startNewLottery()">
+          <h1>Start New Lottery</h1><v-icon scale="2" name="rocket"/>
+        </v-btn>
+        <span>Starting a new lottery both distributes funds from the previous lottery and starts a new round.</span>
+      </v-tooltip>
+    </div>
+    <div v-else>
+      {{timeRemaining}}
     </div>
   </div>
 </template>
@@ -12,11 +20,15 @@
 <script>
 import Lottery from "../../static/lottery";
 import jetch from "jetch";
+import Icon from "vue-awesome/components/Icon";
 
 export default {
   created() {
     this.updateCountdown();
     this.updateBalance();
+  },
+  components: {
+    "v-icon": Icon
   },
   data() {
     let lottery = new Lottery();
@@ -53,7 +65,11 @@ export default {
               minutes: m,
               seconds: s
             } = this.lottery.timeRemaining;
-            this.timeRemaining = `${d} days ${h} hours ${m} ${s} remaining`;
+            this.timeRemaining = `${d} day${d < 2 ? "" : "s"} ${h} hour${
+              h < 2 ? "" : "s"
+            } ${m} minute${m < 2 ? "" : "s"} ${s} second${
+              s < 2 ? "" : "s"
+            } remaining`;
           }
         };
         cb();
@@ -72,6 +88,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.v-tooltip__content {
+  left: 33% !important;
+  top: 0px !important;
+}
+#start-new-contract {
+  height: 45px;
+}
 #lottery-end {
   font-size: 30px;
   margin-bottom: 30px;

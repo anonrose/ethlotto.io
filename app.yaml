@@ -7,3 +7,5 @@ handlers:
 skip_files:
   - contract/
   - node_modules/
+  - site/
+  - .vscode/
