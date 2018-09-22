@@ -21,6 +21,7 @@
 import Lottery from "../../static/lottery";
 import jetch from "jetch";
 import Icon from "vue-awesome/components/Icon";
+import Web3 from "web3";
 
 export default {
   created() {
@@ -80,8 +81,10 @@ export default {
   watch: {
     balanceInWei: async function(newBal) {
       let { data: { amount: ethPrice } } = await jetch("/api/price.json");
-      let ethAmount = web3.fromWei(newBal, "ether");
-      this.balanceInUSD = parseFloat(ethPrice) * parseFloat(ethAmount);
+      let ethAmount = Web3.utils.fromWei(newBal, "ether");
+      this.balanceInUSD = (
+        parseFloat(ethPrice) * parseFloat(ethAmount)
+      ).toFixed(2);
     }
   }
 };

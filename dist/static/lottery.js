@@ -1,9 +1,9 @@
 import Contract from 'eth-contract-wrapper'
-import { CONTRACT_ABI, CONTRACT_ADDRESS, ADDRESS_0, TICKET_PRICE_IN_WEI } from './constants'
+import { CONTRACT_ABI, CONTRACT_ADDRESS, ADDRESS_0, TICKET_PRICE_IN_WEI, WEB_3_HOST } from './constants'
 
 export default class Lottery extends Contract {
   constructor() {
-    super(CONTRACT_ABI, CONTRACT_ADDRESS)
+    super(CONTRACT_ABI, CONTRACT_ADDRESS, WEB_3_HOST)
   }
 
   get lotteryEnd() {
