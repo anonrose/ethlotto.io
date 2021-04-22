@@ -18,4 +18,4 @@ app.get('/api/price.json', async (req, res) => {
 
 app.use(express.static(path.join(__dirname, 'dist')));
 
-app.listen(3000);
+app.listen(8080);
